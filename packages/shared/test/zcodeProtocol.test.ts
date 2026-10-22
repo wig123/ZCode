@@ -2593,6 +2593,32 @@ describe("ZCode Protocol", () => {
     },
   );
 
+  it.each(["automation", "off-peak"])(
+    "accepts runtime-attributed turn.started payloads from %s runs",
+    (kind) => {
+      const attribution =
+        kind === "automation"
+          ? { automationId: "automation_1" }
+          : { offPeakTaskId: "off_peak_1", offPeakRunType: "resume" as const };
+      const event = zcodeSessionEventSchema.parse({
+        eventId: "evt_turn_attributed",
+        seq: 3,
+        sessionId: "sess_1",
+        turnId: "turn_2",
+        timestamp: 4,
+        type: "turn.started",
+        payload: {
+          turnNumber: 3,
+          input: "scheduled reminder",
+          ...attribution,
+          epilogueStart: 1789614600000,
+        },
+      });
+
+      expect(event.payload).toMatchObject(attribution);
+    },
+  );
+
   it("parses subagent message model-only inputs for replayable delivery", () => {
     const event = zcodeSessionEventSchema.parse({
       eventId: "evt_subagent_response",

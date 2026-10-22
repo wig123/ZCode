@@ -1542,6 +1542,12 @@ export const zcodeTurnStartedEventPayloadSchema = z
     originMeta: jsonObjectSchema.optional(),
     // runtime 会透传后台唤醒来源，strict schema 必须同步声明以免丢弃整条事件。
     backgroundSource: z.enum(["bash", "subagent"]).optional(),
+    // 定时任务、闲时任务和收尾唤起的轮同样由 runtime 透传来源标识；漏声明同样会丢弃整条
+    // turn.started，聊天通道拿不到开始事件，这一轮的回复就全部投不出去。
+    automationId: nonEmptyString.optional(),
+    offPeakTaskId: nonEmptyString.optional(),
+    offPeakRunType: z.enum(["init", "resume"]).optional(),
+    epilogueStart: z.number().nonnegative().optional(),
     attachments: z.array(jsonObjectSchema).optional(),
   })
   .strict();
